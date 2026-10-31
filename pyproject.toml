@@ -2,11 +2,13 @@
 name = "quartapp"
 version = "1.0.0"
 description = "Create a simple chat app using Quart and OpenAI"
+requires-python = ">=3.12"
 dependencies = [
     "quart",
     "werkzeug",
     "gunicorn",
     "uvicorn",
+    "uvicorn-worker",
     # Used by uvicorn on non-Windows platforms
     "uvloop>=0.16.0; sys_platform != 'win32' and (sys_platform != 'cygwin' and platform_python_implementation != 'PyPy')",
     # Recommended for uvicorn
