@@ -40,6 +40,26 @@ class AppTest(unittest.IsolatedAsyncioTestCase):
                 self.assertTrue(tokens)
                 self.assertEqual(provider.call_args.args[1], 'https://cognitiveservices.azure.com/.default')
 
+    async def test_stream_authentication_error_is_ndjson(self):
+        async def token():
+            return "fake-token"
+
+        def client(**kwargs):
+            transport = httpx2.MockTransport(lambda request: httpx2.Response(
+                401, json={"error": {"message": "fake rejection", "type": "authentication_error"}}
+            ))
+            return AsyncOpenAI(**kwargs, http_client=httpx2.AsyncClient(transport=transport))
+
+        env = {"AZURE_OPENAI_ENDPOINT": "https://example.invalid/", "AZURE_OPENAI_CHAT_DEPLOYMENT": "test-deployment"}
+        with patch.dict(os.environ, env), patch("quartapp.chat.get_bearer_token_provider", return_value=token), patch("quartapp.chat.AsyncOpenAI", side_effect=client):
+            app = create_app(testing=True)
+            async with app.test_app():
+                response = await app.test_client().post('/chat/stream', json={"input": "hello"})
+                self.assertEqual(response.mimetype, 'application/x-ndjson')
+                lines = (await response.get_data()).splitlines()
+                self.assertEqual(len(lines), 1)
+                self.assertIn('fake rejection', json.loads(lines[0])['error'])
+
     async def test_missing_endpoint_fails_startup(self):
         with patch.dict(os.environ, {"AZURE_OPENAI_ENDPOINT": "", "AZURE_OPENAI_CHAT_DEPLOYMENT": "test"}):
             app = create_app(testing=True)

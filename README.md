@@ -38,6 +38,7 @@ The app requires Azure OpenAI configuration before it can answer chat requests:
 - `AZURE_OPENAI_CHAT_DEPLOYMENT`
 - `AZURE_TENANT_ID` for local development
 - `AZURE_CLIENT_ID` when using a user-assigned managed identity
+- `RUNNING_IN_PRODUCTION=true` on deployed instances to disable development reload
 
 Lumen's AI template provisioning still needs to model the Azure OpenAI resource,
 model deployment, managed identity permissions, and app settings before this

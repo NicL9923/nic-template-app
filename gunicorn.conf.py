@@ -16,5 +16,6 @@ if not os.getenv("RUNNING_IN_PRODUCTION"):
 num_cpus = multiprocessing.cpu_count()
 workers = (num_cpus * 2) + 1
 worker_class = "uvicorn_worker.UvicornWorker"
+control_socket_disable = True
 
 timeout = 120
