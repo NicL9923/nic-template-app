@@ -120,7 +120,6 @@
                 let answer = "";
                 for await (const chunk of readNDJSONStream(response.body)) {
                     if (chunk.type === "response.output_text.delta" && chunk.delta) {
-                        // Clear out the DIV if its the first answer chunk we've received
                         if (answer == "") {
                             messageDiv.innerHTML = "";
                         }
