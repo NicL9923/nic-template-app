@@ -38,10 +38,17 @@ The app requires Azure OpenAI configuration before it can answer chat requests:
 - `AZURE_OPENAI_CHAT_DEPLOYMENT`
 - `AZURE_TENANT_ID` for local development
 - `AZURE_CLIENT_ID` when using a user-assigned managed identity
+- `RUNNING_IN_PRODUCTION=true` on deployed instances to disable development reload
 
 Lumen's AI template provisioning still needs to model the Azure OpenAI resource,
 model deployment, managed identity permissions, and app settings before this
 sample is fully runnable from the portal create flow.
+
+## Python runtime and dependencies
+
+Use Python 3.12 or later. The deployment runtime is configured by Lumen, outside this repository. The lock supports Python 3.12 and newer; Quart 0.23 requires Python 3.13. Coordinate any deployed runtime upgrade with Lumen.
+
+Regenerate dependencies with `uv pip compile pyproject.toml --python-version 3.12 --universal --no-strip-markers --upgrade -o requirements.txt`. Run the offline app checks with `python -m unittest discover -s tests -v`. Gunicorn uses the separately maintained `uvicorn-worker` package.
 
 ## Run locally
 
