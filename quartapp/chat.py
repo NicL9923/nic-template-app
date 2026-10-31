@@ -22,10 +22,8 @@ bp = Blueprint("chat", __name__, template_folder="templates", static_folder="sta
 
 @bp.before_app_serving
 async def configure_openai():
-    # Use ManagedIdentityCredential with the client_id for user-assigned managed identities
     user_assigned_managed_identity_credential = ManagedIdentityCredential(client_id=os.getenv("AZURE_CLIENT_ID"))
 
-    # Use AzureDeveloperCliCredential with the current tenant.
     azure_dev_cli_credential = AzureDeveloperCliCredential(tenant_id=os.getenv("AZURE_TENANT_ID"), process_timeout=60)
 
     # Create a ChainedTokenCredential with ManagedIdentityCredential and AzureDeveloperCliCredential
@@ -39,7 +37,6 @@ async def configure_openai():
     azure_credential = ChainedTokenCredential(user_assigned_managed_identity_credential, azure_dev_cli_credential)
     current_app.logger.info("Using Azure OpenAI Responses API with credential")
 
-    # Get the token provider for Azure OpenAI based on the selected Azure credential
     token_provider = get_bearer_token_provider(azure_credential, "https://cognitiveservices.azure.com/.default")
     openai_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
     if not openai_endpoint:
@@ -47,13 +44,11 @@ async def configure_openai():
     if not os.getenv("AZURE_OPENAI_CHAT_DEPLOYMENT"):
         raise ValueError("AZURE_OPENAI_CHAT_DEPLOYMENT is required for Azure OpenAI")
 
-    # Create the asynchronous OpenAI client against Azure's v1 endpoint.
     bp.azure_credential = azure_credential
     bp.openai_client = AsyncOpenAI(
         base_url=f"{openai_endpoint.rstrip('/')}/openai/v1/",
         api_key=token_provider,
     )
-    # Set the model name to the Azure OpenAI model deployment name
     bp.openai_model = os.getenv("AZURE_OPENAI_CHAT_DEPLOYMENT")
 
 
